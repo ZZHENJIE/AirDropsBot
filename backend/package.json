@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node index.ts"
+  },
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@koa/router": "^14.0.0",
+    "koa": "^3.0.1",
+    "typescript": "^5.9.2",
+    "undici": "^7.16.0"
+  },
+  "devDependencies": {
+    "@types/koa__router": "^12.0.4",
+    "@types/node": "^24.5.2"
+  }
+}

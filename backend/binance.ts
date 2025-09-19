@@ -1,4 +1,4 @@
-import email from './email.ts'
+import { email } from './communication.ts'
 
 const air_drop_list = (page: number = 1, rows: number = 20) => {
     return fetch('https://www.binance.com/bapi/defi/v1/friendly/wallet-direct/buw/growth/query-alpha-airdrop', {
