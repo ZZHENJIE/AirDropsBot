@@ -1,0 +1,108 @@
+import email from './email.ts'
+
+const air_drop_list = (page: number = 1, rows: number = 20) => {
+    return fetch('https://www.binance.com/bapi/defi/v1/friendly/wallet-direct/buw/growth/query-alpha-airdrop', {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            page,
+            rows
+        })
+    })
+}
+
+const token_info = (chainId: string, contractAddress: string) => {
+    return fetch(`https://www.maxweb.systems/bapi/defi/v1/public/wallet-direct/buw/wallet/cex/alpha/token/full/info?chainId=${chainId}&contractAddress=${contractAddress}`);
+}
+
+const token_logo = (url: string) => {
+    return `https://static-file-1306379396.file.myqcloud.com/${url}`
+}
+
+const html_template = () => {
+    return `
+        <div
+        style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px;">Lombard
+            项目详情</h2>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-weight: bold; color: #555;">代币符号:</span>
+            <span style="margin-left: 10px;">
+                <img src="https://static-file-1306379396.file.myqcloud.com/images/web3-data/public/token/logos/506c1e24c1214aab9da5994a3b12517a.png"
+                    alt="BARD" style="vertical-align: middle; width: 20px; height: 20px; margin-right: 5px;">
+                BARD
+            </span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-weight: bold; color: #555;">合约地址:</span>
+            <span
+                style="margin-left: 10px; font-family: monospace; word-break: break-all;">0xd23a186a78c0b3b805505e5f8ea4083295ef9f3a</span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-weight: bold; color: #555;">空投数量:</span>
+            <span style="margin-left: 10px;">100 BARD</span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-weight: bold; color: #555;">状态:</span>
+            <span style="margin-left: 10px; color: #d32f2f; font-weight: bold;">已结束</span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-weight: bold; color: #555;">时间安排:</span>
+            <div style="margin-left: 20px; margin-top: 5px;">
+                <div>显示开始: 2025年9月17日 16:45</div>
+                <div>申领开始: 2025年9月17日 17:00</div>
+                <div>申领结束: 2025年9月18日 10:00</div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-weight: bold; color: #555;">积分要求:</span>
+            <div style="margin-left: 20px; margin-top: 5px;">
+                <div>第一阶段: ≥215积分 (扣除15分)</div>
+                <div>第二阶段: ≥200积分</div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <span style="font-weight: bold; color: #555;">区块链:</span>
+            <span style="margin-left: 10px;">
+                <img src="https://bin.bnbstatic.com/image/admin_mgs_image_upload/20250228/d0216ce4-a3e9-4bda-8937-4a6aa943ccf2.png"
+                    alt="Binance Chain" style="vertical-align: middle; width: 20px; height: 20px; margin-right: 5px;">
+                Binance Smart Chain (BSC)
+            </span>
+        </div>
+
+        <div style="margin-top: 20px; padding-top: 10px; border-top: 1px dashed #e0e0e0; color: #777; font-size: 14px;">
+            项目类型: 初始项目 | 配置ID: 7656955816e841cf9edd5463db5f45f1
+        </div>
+    </div>
+    `
+}
+
+export default async () => {
+    // const now = Date.now();
+    // const response = await air_drop_list();
+    // if (response.status != 200) {
+    //     console.log('请求失败:air_drop_list', response.status);
+    //     return;
+    // }
+    // const json = await response.json();
+    // const list = json.data.configs;
+
+    // await email('1712881363@qq.com', '币安空投提醒⏰', '代币空投 将在2021-09-01 00:00:00 开始', html_template(), false)
+
+    console.log(await (await token_info('56', '0xd23a186a78c0b3b805505e5f8ea4083295ef9f3a')).json());
+
+    // for (const item of list) {
+    //     if (now < item.claimStartTime) {
+
+    //     }
+    // }
+}
