@@ -1,0 +1,91 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*' # 当推送包含 v 开头的标签时触发，例如 v1.0.0
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: airdropsbot-linux
+            asset_name: airdropsbot-linux-amd64
+          - os: windows-latest
+            artifact_name: airdropsbot-windows.exe
+            asset_name: airdropsbot-windows-amd64.exe
+          - os: macos-latest
+            artifact_name: airdropsbot-macos
+            asset_name: airdropsbot-macos-amd64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Build
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            go build -o ${{ matrix.artifact_name }} ./cmd/airdropsbot
+          else
+            go build -o ${{ matrix.artifact_name }} ./cmd/airdropsbot
+          fi
+        shell: bash
+
+      - name: Create config template
+        run: |
+          echo '{
+            "password": "your-password",
+            "interval_seconds": 30,
+            "email": {
+              "smtpCode": "your-smtp-code",
+              "smtpCodeType": "qq",
+              "smtpEmail": "your-email@qq.com",
+              "ColaKey": "your-cola-key",
+              "tomail": ["recipient@example.com"]
+            }
+          }' > config.template.json
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.asset_name }}
+          path: |
+            ${{ matrix.artifact_name }}
+            config.template.json
+            README.md
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            */airdropsbot-*
+            */config.template.json
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
