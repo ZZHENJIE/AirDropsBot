@@ -53,16 +53,25 @@ jobs:
           echo "Current working directory: $PWD"
           echo "Repository contents:"
           ls -la
-          echo "Go environment:"
-          go env GOPATH GOROOT
           
+          # 设置 GOPATH 和构建环境
+          export GOPATH=$HOME/go
+          export PATH=$PATH:$GOPATH/bin
+          
+          # 显示 Go 环境
+          go version
+          go env GOPATH GOROOT GOOS GOARCH
+          
+          # 构建准备
           OUTPUT="airdropsbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.suffix }}"
           echo "Building for ${{ matrix.os }}/${{ matrix.arch }}..."
           
-          # 确保在主模块目录中构建
+          # 安装依赖
           go mod download
           go mod verify
-          go build -v -o "$OUTPUT" .
+          
+          # 构建
+          CGO_ENABLED=0 go build -v -o "build/$OUTPUT" ./cmd/airdropsbot
           echo "Creating config template..."
           echo '{
             "password": "your-password",
