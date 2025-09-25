@@ -70,10 +70,14 @@ jobs:
           go mod download
           go mod verify
           
-          # 构建
-          CGO_ENABLED=0 go build
+          # 构建可执行文件
+          echo "Building executable..."
+          CGO_ENABLED=0 go build -v -o "$OUTPUT" ./cmd/airdropsbot
+          
+          # 创建配置模板
           echo "Creating config template..."
-          echo '{
+          cat > config.template.json << 'EOF'
+          {
             "password": "your-password",
             "interval_seconds": 30,
             "email": {
@@ -83,16 +87,46 @@ jobs:
               "ColaKey": "your-cola-key",
               "tomail": ["recipient@example.com"]
             }
-          }' > config.template.json
+          }
+          EOF
+          
+          # 生成校验和
+          echo "Generating checksums..."
+          sha256sum "$OUTPUT" > "$OUTPUT.sha256"
+          
+          # 显示构建结果
+          echo "Build results:"
+          ls -lh "$OUTPUT"*
+          cat "$OUTPUT.sha256"
+
+      - name: Prepare Release Package
+        run: |
+          # 创建发布目录
+          RELEASE_DIR="release-${{ matrix.os }}-${{ matrix.arch }}"
+          mkdir -p "$RELEASE_DIR"
+          
+          # 复制文件到发布目录
+          cp "$OUTPUT" "$RELEASE_DIR/"
+          cp "$OUTPUT.sha256" "$RELEASE_DIR/"
+          cp config.template.json "$RELEASE_DIR/"
+          cp README.md "$RELEASE_DIR/"
+          
+          # 创建压缩包
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            zip -r "${RELEASE_DIR}.zip" "$RELEASE_DIR"
+          else
+            tar czf "${RELEASE_DIR}.tar.gz" "$RELEASE_DIR"
+          fi
+          
+          # 显示打包结果
+          ls -lh ${RELEASE_DIR}.*
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: airdropsbot-${{ matrix.os }}-${{ matrix.arch }}
           path: |
-            airdropsbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.suffix }}
-            airdropsbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.suffix }}.sha256
-            config.template.json
+            release-${{ matrix.os }}-${{ matrix.arch }}.*
           retention-days: 7
 
   release:
@@ -113,10 +147,26 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            */airdropsbot-*
-            */config.template.json
+            */*.zip
+            */*.tar.gz
           draft: false
           prerelease: false
           generate_release_notes: true
+          body: |
+            ## AirDropsBot Release
+            
+            ### 支持的平台
+            - Windows (64/32位)
+            - macOS (Intel/ARM)
+            - Linux (64/32位)
+            
+            ### 校验和
+            每个发布包都包含 SHA256 校验和文件
+            
+            ### 安装说明
+            1. 下载对应平台的压缩包
+            2. 解压缩
+            3. 重命名 config.template.json 为 config.json 并修改配置
+            4. 运行可执行文件
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
