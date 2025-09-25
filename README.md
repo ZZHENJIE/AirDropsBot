@@ -49,13 +49,13 @@ cd AirDropsBot-Backend
 ### 3. 构建项目
 
 ```bash
-go build ./cmd/airdropsbot
+go build
 ```
 
 ### 4. 运行服务
 
 ```bash
-./airdropsbot -addr :8080 -config ./config.json
+./AirDropsBot -addr :8080 -config ./config.json
 ```
 
 ## 🔧 API 接口

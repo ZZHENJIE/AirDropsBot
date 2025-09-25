@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	"airdropsbot/internal/airdrop"
-	"airdropsbot/internal/email"
+	"github.com/ZZHENJIE/AirDropsBot/internal/airdrop"
+	"github.com/ZZHENJIE/AirDropsBot/internal/email"
 )
 
 // Task 定时任务结构体，管理空投监控和邮件通知

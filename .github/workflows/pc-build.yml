@@ -71,7 +71,7 @@ jobs:
           go mod verify
           
           # 构建
-          CGO_ENABLED=0 go build -v -o "build/$OUTPUT" ./cmd/airdropsbot
+          CGO_ENABLED=0 go build -v -o "build/$OUTPUT"
           echo "Creating config template..."
           echo '{
             "password": "your-password",
