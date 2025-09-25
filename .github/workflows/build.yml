@@ -2,6 +2,8 @@ name: Build and Release
 
 on:
   push:
+    branches:
+      - main # 在推送到 main 分支时触发
     tags:
       - 'v*' # 当推送包含 v 开头的标签时触发，例如 v1.0.0
 

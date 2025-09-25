@@ -161,4 +161,4 @@ airdropsbot/
 
 如果您有任何问题或建议，请通过以下方式联系：
 - Email: zhongzhenjie0729@outlook.com
-- GitHub Issues: [创建新 issue](https://github.com/yourusername/AirDropsBot-Backend/issues)
+- GitHub Issues: [创建新 issue](https://github.com/ZZHENJIE/AirDropsBot/issues)
