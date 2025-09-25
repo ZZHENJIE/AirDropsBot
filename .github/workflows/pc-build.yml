@@ -100,25 +100,44 @@ jobs:
           cat "$OUTPUT.sha256"
 
       - name: Prepare Release Package
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
         run: |
+          # 设定输出文件名
+          OUTPUT="AirDropsBot${{ matrix.suffix }}"
+          
           # 创建发布目录
           RELEASE_DIR="AirDropsBot-${{ matrix.os }}-${{ matrix.arch }}"
           mkdir -p "$RELEASE_DIR"
           
-          # 复制文件到发布目录并重命名可执行文件
+          echo "Preparing release package..."
+          echo "Source file: $OUTPUT"
+          echo "Release directory: $RELEASE_DIR"
+          ls -la
+          
+          # 复制文件到发布目录
           cp "$OUTPUT" "$RELEASE_DIR/AirDropsBot${{ matrix.suffix }}"
           cp "$OUTPUT.sha256" "$RELEASE_DIR/AirDropsBot${{ matrix.suffix }}.sha256"
           cp config.template.json "$RELEASE_DIR/"
           cp README.md "$RELEASE_DIR/"
           
+          # 显示发布目录内容
+          echo "Release directory contents:"
+          ls -lR "$RELEASE_DIR"
+          
           # 创建压缩包
+          echo "Creating archive..."
           if [ "${{ matrix.os }}" = "windows" ]; then
             zip -r "${RELEASE_DIR}.zip" "$RELEASE_DIR"
+            echo "Created zip archive: ${RELEASE_DIR}.zip"
           else
             tar czf "${RELEASE_DIR}.tar.gz" "$RELEASE_DIR"
+            echo "Created tar.gz archive: ${RELEASE_DIR}.tar.gz"
           fi
           
-          # 显示打包结果
+          # 显示最终结果
+          echo "Final artifacts:"
           ls -lh ${RELEASE_DIR}.*
 
       - name: Upload Artifacts
