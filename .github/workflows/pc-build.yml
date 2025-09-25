@@ -52,7 +52,7 @@ jobs:
         run: |
           OUTPUT="airdropsbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.suffix }}"
           echo "Building for ${{ matrix.os }}/${{ matrix.arch }}..."
-          go build -v -o "$OUTPUT" ./cmd/airdropsbot
+          go build -v -o "$OUTPUT" ../cmd/airdropsbot
           echo "Creating checksum..."
           sha256sum "$OUTPUT" > "$OUTPUT.sha256"
           echo "Creating config template..."
