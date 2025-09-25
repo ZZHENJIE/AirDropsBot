@@ -11,47 +11,62 @@ jobs:
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
+            GOOS: linux
+            GOARCH: amd64
             artifact_name: airdropsbot-linux
             asset_name: airdropsbot-linux-amd64
           - os: windows-latest
+            GOOS: windows
+            GOARCH: amd64
             artifact_name: airdropsbot-windows.exe
             asset_name: airdropsbot-windows-amd64.exe
           - os: macos-latest
+            GOOS: darwin
+            GOARCH: amd64
             artifact_name: airdropsbot-macos
             asset_name: airdropsbot-macos-amd64
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.25.1'
+          check-latest: true
+          cache: true
+
+      - name: Verify repository
+        run: |
+          pwd
+          ls -la
+          go version
 
       - name: Get dependencies
-        run: go mod download
+        run: |
+          go mod download
+          go mod verify
 
       - name: Build
+        env:
+          GOOS: ${{ matrix.GOOS }}
+          GOARCH: ${{ matrix.GOARCH }}
         run: |
-          echo "Current working directory: $PWD"
-          echo "GitHub workspace: $GITHUB_WORKSPACE"
-          cd "$GITHUB_WORKSPACE"
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            go build -o "${{ matrix.artifact_name }}" "./cmd/airdropsbot"
-          else
-            go build -o "${{ matrix.artifact_name }}" "./cmd/airdropsbot"
-          fi
-        shell: bash
+          echo "Building for $GOOS/$GOARCH..."
+          go build -v -o "${{ matrix.artifact_name }}" ./cmd/airdropsbot/
 
       - name: Create config template
         run: |
-          echo '{
+          cat > config.template.json << 'EOF'
+          {
             "password": "your-password",
             "interval_seconds": 30,
             "email": {
@@ -61,8 +76,14 @@ jobs:
               "ColaKey": "your-cola-key",
               "tomail": ["recipient@example.com"]
             }
-          }' > config.template.json
-        shell: bash
+          }
+          EOF
+
+      - name: Verify build artifacts
+        run: |
+          ls -la
+          file ${{ matrix.artifact_name }}
+          sha256sum ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -70,6 +91,7 @@ jobs:
           name: ${{ matrix.asset_name }}
           path: |
             ${{ matrix.artifact_name }}
+            ${{ matrix.artifact_name }}.sha256
             config.template.json
             README.md
 
@@ -77,13 +99,19 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
     
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
+      - name: Prepare release assets
+        run: |
+          ls -R
+          find . -type f -name "*.sha256" -exec cat {} \;
+
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v1
         with:
           files: |
