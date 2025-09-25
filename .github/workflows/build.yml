@@ -60,8 +60,10 @@ jobs:
           GOOS: ${{ matrix.GOOS }}
           GOARCH: ${{ matrix.GOARCH }}
         run: |
-          echo "Building for $GOOS/$GOARCH..."
-          go build -v -o "${{ matrix.artifact_name }}" ./cmd/airdropsbot/
+          echo "Current directory structure:"
+          find . -type d
+          echo "=== Building for $GOOS/$GOARCH ==="
+          go build -v -o "${{ matrix.artifact_name }}" cmd/airdropsbot
 
       - name: Create config template
         run: |
