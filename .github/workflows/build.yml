@@ -63,7 +63,8 @@ jobs:
           echo "Current directory structure:"
           find . -type d
           echo "=== Building for $GOOS/$GOARCH ==="
-          go build -v -o "${{ matrix.artifact_name }}" airdropsbot/cmd/airdropsbot
+          cd cmd/airdropsbot
+          go build -v -o "../../${{ matrix.artifact_name }}" .
 
       - name: Create config template
         run: |
