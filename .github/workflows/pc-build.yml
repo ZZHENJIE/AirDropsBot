@@ -143,9 +143,9 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: airdropsbot-${{ matrix.os }}-${{ matrix.arch }}
+          name: AirDropsBot-${{ matrix.os }}-${{ matrix.arch }}
           path: |
-            release-${{ matrix.os }}-${{ matrix.arch }}.*
+            AirDropsBot-${{ matrix.os }}-${{ matrix.arch }}.*
           retention-days: 7
 
   release:
@@ -166,8 +166,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            */*.zip
-            */*.tar.gz
+            */AirDropsBot-*.zip
+            */AirDropsBot-*.tar.gz
           draft: false
           prerelease: false
           generate_release_notes: true
