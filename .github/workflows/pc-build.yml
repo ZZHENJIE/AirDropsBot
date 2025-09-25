@@ -1,0 +1,105 @@
+name: PC Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # 允许手动触发工作流
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build PC Binaries
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        include:
+          - os: windows
+            arch: amd64
+            suffix: .exe
+          - os: windows
+            arch: 386
+            suffix: .exe
+          - os: darwin
+            arch: amd64
+            suffix: ""
+          - os: darwin
+            arch: arm64
+            suffix: ""
+          - os: linux
+            arch: amd64
+            suffix: ""
+          - os: linux
+            arch: 386
+            suffix: ""
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.25.1'
+          cache: true
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          OUTPUT="airdropsbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.suffix }}"
+          echo "Building for ${{ matrix.os }}/${{ matrix.arch }}..."
+          go build -v -o "$OUTPUT" ./cmd/airdropsbot
+          echo "Creating checksum..."
+          sha256sum "$OUTPUT" > "$OUTPUT.sha256"
+          echo "Creating config template..."
+          echo '{
+            "password": "your-password",
+            "interval_seconds": 30,
+            "email": {
+              "smtpCode": "your-smtp-code",
+              "smtpCodeType": "qq",
+              "smtpEmail": "your-email@qq.com",
+              "ColaKey": "your-cola-key",
+              "tomail": ["recipient@example.com"]
+            }
+          }' > config.template.json
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: airdropsbot-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            airdropsbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.suffix }}
+            airdropsbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.suffix }}.sha256
+            config.template.json
+          retention-days: 7
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Display structure
+        run: ls -R
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            */airdropsbot-*
+            */config.template.json
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
