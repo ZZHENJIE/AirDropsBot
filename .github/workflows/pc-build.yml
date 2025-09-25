@@ -72,7 +72,7 @@ jobs:
           
           # 构建可执行文件
           echo "Building executable..."
-          CGO_ENABLED=0 go build -v -o "$OUTPUT" ./cmd/airdropsbot
+          CGO_ENABLED=0 go build -v -o "$OUTPUT" .
           
           # 创建配置模板
           echo "Creating config template..."
