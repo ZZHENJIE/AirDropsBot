@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	cfgpkg "github.com/ZZHENJIE/AirDropsBot/internal/config"
+	cfgpkg "air-drops-bot/internal/config"
 )
 
 // EmailPayload 邮件发送请求的数据结构

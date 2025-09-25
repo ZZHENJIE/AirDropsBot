@@ -7,6 +7,10 @@ on:
     branches: [ main ]
   # 允许手动触发工作流
   workflow_dispatch:
+  
+env:
+  # 使用日期作为版本号的一部分
+  VERSION: 1.0.0-${{ github.run_number }}
 
 jobs:
   build:
@@ -148,10 +152,37 @@ jobs:
             AirDropsBot-${{ matrix.os }}-${{ matrix.arch }}.*
           retention-days: 7
 
-  release:
+  create-release:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    # 只在 main 分支上运行
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      
+    steps:
+      # 检出代码，这样我们可以创建标签
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      # 配置 Git
+      - name: Setup Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+      
+      # 创建新标签
+      - name: Create Tag
+        run: |
+          echo "Creating new tag v${{ env.VERSION }}"
+          git tag "v${{ env.VERSION }}"
+          git push origin "v${{ env.VERSION }}"
+          
+  release:
+    needs: create-release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write
 
@@ -171,8 +202,15 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
           body: |
-            ## AirDropsBot Release
+            ## AirDropsBot Release v${{ env.VERSION }}
+            
+            ### 版本信息
+            - 版本号: v${{ env.VERSION }}
+            - 发布时间: ${{ github.event.head_commit.timestamp }}
+            - 提交信息: ${{ github.event.head_commit.message }}
             
             ### 支持的平台
             - Windows (64/32位)
@@ -187,5 +225,8 @@ jobs:
             2. 解压缩
             3. 重命名 config.template.json 为 config.json 并修改配置
             4. 运行可执行文件
+            
+            ### 更新内容
+            自动构建于 main 分支的最新提交
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

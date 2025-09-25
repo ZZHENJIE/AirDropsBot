@@ -11,9 +11,9 @@ import (
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/mem"
 
-	cfgpkg "github.com/ZZHENJIE/AirDropsBot/internal/config"
-	"github.com/ZZHENJIE/AirDropsBot/internal/scheduler"
-	"github.com/ZZHENJIE/AirDropsBot/internal/task"
+	cfgpkg "air-drops-bot/internal/config"
+	"air-drops-bot/internal/scheduler"
+	"air-drops-bot/internal/task"
 )
 
 // Server HTTP服务器结构体，提供 API 接口和状态管理

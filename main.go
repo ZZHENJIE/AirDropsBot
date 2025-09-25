@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	cfgpkg "github.com/ZZHENJIE/AirDropsBot/internal/config"
-	"github.com/ZZHENJIE/AirDropsBot/internal/email"
-	"github.com/ZZHENJIE/AirDropsBot/internal/scheduler"
-	"github.com/ZZHENJIE/AirDropsBot/internal/server"
-	"github.com/ZZHENJIE/AirDropsBot/internal/task"
+	cfgpkg "air-drops-bot/internal/config"
+	"air-drops-bot/internal/email"
+	"air-drops-bot/internal/scheduler"
+	"air-drops-bot/internal/server"
+	"air-drops-bot/internal/task"
 )
 
 func main() {

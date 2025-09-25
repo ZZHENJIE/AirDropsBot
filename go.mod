@@ -1,4 +1,4 @@
-module github.com/ZZHENJIE/AirDropsBot
+module air-drops-bot
 
 go 1.25.1
 
