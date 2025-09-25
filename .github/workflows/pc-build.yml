@@ -63,7 +63,7 @@ jobs:
           go env GOPATH GOROOT GOOS GOARCH
           
           # 构建准备
-          OUTPUT="airdropsbot-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.suffix }}"
+          OUTPUT="AirDropsBot${{ matrix.suffix }}"
           echo "Building for ${{ matrix.os }}/${{ matrix.arch }}..."
           
           # 安装依赖
@@ -102,12 +102,12 @@ jobs:
       - name: Prepare Release Package
         run: |
           # 创建发布目录
-          RELEASE_DIR="release-${{ matrix.os }}-${{ matrix.arch }}"
+          RELEASE_DIR="AirDropsBot-${{ matrix.os }}-${{ matrix.arch }}"
           mkdir -p "$RELEASE_DIR"
           
-          # 复制文件到发布目录
-          cp "$OUTPUT" "$RELEASE_DIR/"
-          cp "$OUTPUT.sha256" "$RELEASE_DIR/"
+          # 复制文件到发布目录并重命名可执行文件
+          cp "$OUTPUT" "$RELEASE_DIR/AirDropsBot${{ matrix.suffix }}"
+          cp "$OUTPUT.sha256" "$RELEASE_DIR/AirDropsBot${{ matrix.suffix }}.sha256"
           cp config.template.json "$RELEASE_DIR/"
           cp README.md "$RELEASE_DIR/"
           
