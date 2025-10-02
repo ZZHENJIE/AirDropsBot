@@ -37,14 +37,15 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './target'
+      
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
 
-      - uses: rust-apps/rust-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload binary to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          tagName: AirdropsBot-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseName: 'AirdropsBot v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
-          prerelease: false
-          args: ${{ matrix.args }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ github.ref_name }}
+          overwrite: true
