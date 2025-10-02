@@ -15,7 +15,6 @@ pub struct Email {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    pub port: u16,
     pub log: String,
     pub database: String,
     pub interval: u64,

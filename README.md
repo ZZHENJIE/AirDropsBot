@@ -31,7 +31,6 @@ cargo build --release
     "log": "日志输出路径",
     "interval": 1,
     "database": "数据库路径",
-    "port": 8080,
     "email": {
         "smtp_code": "your_smtp_code",
         "smtp_code_type": "qq",
