@@ -6,15 +6,25 @@ fn main() {
     match app::App::new(&args) {
         Some(app) => {
             init_tracing(&app.config.log);
+            let mut error_timestamp = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs();
             let mut tasks: Vec<Box<dyn Task>> = vec![Box::new(binance::Airdrops::default())];
             loop {
                 for task in &mut tasks {
                     match task.run(&app) {
                         Ok(_) => {}
                         Err(e) => {
-                            app::Email::sned(&app.config, "Server Error", "Error", &e, true)
-                                .unwrap();
-                            break;
+                            let error_temp_timestamp = std::time::SystemTime::now()
+                                .duration_since(std::time::UNIX_EPOCH)
+                                .unwrap()
+                                .as_secs();
+                            if error_temp_timestamp - error_timestamp > 120 {
+                                app::Email::sned(&app.config, "Server Error", "Error", &e, true)
+                                    .unwrap();
+                                error_timestamp = error_temp_timestamp;
+                            }
                         }
                     }
                 }
